@@ -11,8 +11,7 @@
 #include <fonts/Arial_Black_16.h>
 #include <fonts/Arial14.h>
 
-
-//const int PIRPin = 2; ///////// PIR
+// const int PIRPin = 2; ///////// PIR
 
 Separador s; // instancia para separar string
 
@@ -36,7 +35,6 @@ int PtoBuzzer = 12;
 int cont_disp = 0;
 const char *next = "connecting";
 
-
 /////// Varibles para parpadear la pantalla /////////
 unsigned long tiempo_millis = 0;
 unsigned long tiempo_aux = 0;
@@ -44,11 +42,10 @@ bool parpadeo = false;
 bool parpadeo_aux = false;
 
 /////// Varibles de configuración de conteo  /////////
-float inactivity_hours_reset = 2.5;   // valores por defecto
-int count_dalay_milisegundos = 200;   
+float inactivity_hours_reset = 2.5; // valores por defecto
+int count_dalay_milisegundos = 200;
 String abcd = "medium";
 String estado = "on";
-
 
 ////////////////////////////////////////7
 
@@ -60,7 +57,6 @@ unsigned long int counter_millis = 0;
 
 //********************************** RUTINES *********************************
 //****************************************************************************
-
 
 //////////////////////////////////////7
 bool activacionBuzzer = false;
@@ -76,10 +72,11 @@ void Pantalla(bool buzzerActivate = true)
   }
   else if (total > aforo)
   {
-    if (buzzerActivate){
-    activacionBuzzer = true;
-    digitalWrite(PtoBuzzer, HIGH);
-    Serial.println("Superación de aforo BUZZER");
+    if (buzzerActivate)
+    {
+      activacionBuzzer = true;
+      digitalWrite(PtoBuzzer, HIGH);
+      Serial.println("Superación de aforo BUZZER");
     }
     // delay(4000);
     // digitalWrite(PtoBuzzer, LOW);
@@ -89,7 +86,7 @@ void Pantalla(bool buzzerActivate = true)
 
 void Pantalla2()
 {
-  //Serial.println("Pantalla 2");
+  // Serial.println("Pantalla 2");
   if (parpadeo && !parpadeo_aux)
   {
     box.clear();
@@ -107,7 +104,7 @@ void Pantalla2()
 
 void Pantalla1()
 {
-  //Serial.println("Pantalla 1");
+  // Serial.println("Pantalla 1");
   if (aforo != 0 && parpadeo && !parpadeo_aux)
   {
     box.clear();
@@ -137,14 +134,14 @@ void no_conecto_wifi()
 
 void setup()
 {
-
+  PORTD = 0b00111111;
   Serial.begin(9600);
   dmd.setBrightness(255);
   dmd.selectFont(FONT2);
   dmd.begin();
   pinMode(PtoBuzzer, OUTPUT); // D12   BUZZER
-  //pinMode(PIRPin, INPUT);
-  //Serial.println("hello world");
+  // pinMode(PIRPin, INPUT);
+  // Serial.println("hello world");
 }
 
 void loop()
@@ -156,28 +153,32 @@ void loop()
     next++;
     cont_disp++; // pantalla de connecting ...
   }
-  PORTD = 0b00111111;       // pulls - ups --> necesario!!
 
 
-  if (counter_millis > count_dalay_milisegundos) censusPeople();    // tiempo ms delay de conteo
-  if(total != total_aux){     // si total cambia de valor se actualiza la pantalla
+  if (counter_millis > count_dalay_milisegundos)
+    censusPeople(); // tiempo ms delay de conteo
+
+  if (total != total_aux)
+  { // si total cambia de valor se actualiza la pantalla
     if (total_aux > total)
     {
-      Pantalla(false);  // si algien salió entonces no ejecuta el buzzer
+      Pantalla(false); // si algien salió entonces no ejecuta el buzzer
     }
-    else {
+    else
+    {
       Pantalla();
     }
     total_aux = total; // actualizamos valores
   }
-  if (activacionBuzzer) {
-    if (counter_millis > 4000){ // cuando pasen mas de 4s
+  if (activacionBuzzer)
+  {
+    if (counter_millis > 4000)
+    { // cuando pasen mas de 4s
       activacionBuzzer = false;
       digitalWrite(PtoBuzzer, LOW);
       Serial.println("Superación de aforo BUZZER DESACTIVADO");
     }
   }
-
 
   if (Serial.available())
   {
@@ -192,31 +193,30 @@ void loop()
       aforo = s.separa(mensaje, '/', 1).toInt();
       total = s.separa(mensaje, '/', 2).toInt();
     }
-    else if (mensaje.startsWith("@",0)) 
+    else if (mensaje.startsWith("@", 0))
     {
-      // mensaje esperado = @on@medium@32@0@3.5@200
-      estado = s.separa(mensaje, '@', 1);     // estado
-      abcd = s.separa(mensaje, '@', 2);     // estado
+      // mensaje esperado = @on@medium@32@0@3.5@200@
+      estado = s.separa(mensaje, '@', 1); // estado
+      abcd = s.separa(mensaje, '@', 2);   // estado
       aforo = s.separa(mensaje, '@', 3).toInt();
       total = s.separa(mensaje, '@', 4).toInt();
       inactivity_hours_reset = s.separa(mensaje, '@', 5).toFloat();
-      count_dalay_milisegundos = s.separa(mensaje, '@',6).toInt();
+      count_dalay_milisegundos = s.separa(mensaje, '@', 6).toInt();
       Serial.println();
       Serial.println("Configuración recibida:");
       Serial.println(" - estado: " + estado);
-      Serial.println(" - abcd: " + abcd);                                                 // OK
-      Serial.println(" - aforo: " + String(aforo));                                       // OK
-      Serial.println(" - inactivity_hours_reset: " + String(inactivity_hours_reset));     // OK
+      Serial.println(" - abcd: " + abcd);                                             // OK
+      Serial.println(" - aforo: " + String(aforo));                                   // OK
+      Serial.println(" - inactivity_hours_reset: " + String(inactivity_hours_reset)); // OK
       Serial.println(" - count_dalay_milisegundos: " + String(count_dalay_milisegundos));
     }
-
-    if (total != total_aux || aforo != aforo_aux) // si los datos cambiaron
-    {
-      Pantalla();        // actualizamos pantalla
-      total_aux = total; // actualizamos valores
-      aforo_aux = aforo;
-      Serial.println((String) + "\nACT DISPLAY >> aforo " + aforo + " total " + total + "\n");
-    }
+  }
+  if (total != total_aux || aforo != aforo_aux) // si los datos cambiaron
+  {
+    Pantalla();        // actualizamos pantalla
+    total_aux = total; // actualizamos valores
+    aforo_aux = aforo;
+    Serial.println((String) + "\nACT DISPLAY >> aforo " + aforo + " total " + total + "\n");
   }
 
   // rutinas para el reseteo del total por inactividad
@@ -238,7 +238,6 @@ void loop()
     counter_millis = 0;
     Serial.println("Reseteo del total por tiempo de innactividad");
   }
-
 
   /////////// rutinas para parpadeo de display //////////
   parpadeo = false;
